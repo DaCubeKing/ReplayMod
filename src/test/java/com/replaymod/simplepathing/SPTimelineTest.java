@@ -103,7 +103,7 @@ public class SPTimelineTest {
     @Test
     public void testAddPositionKeyframe() {
         assertNull(timeline.peekUndoStack());
-        impl.addPositionKeyframe(0, 1, 2, 3, 4, 5, 6, -1);
+        impl.addPositionKeyframe(0, 1, 2, 3, 4, 5, 6, 60, -1);
         assertNotNull(timeline.peekUndoStack());
         Keyframe keyframe = impl.getKeyframe(SPPath.POSITION, 0);
         assertNotNull(keyframe);
@@ -118,7 +118,7 @@ public class SPTimelineTest {
     @Test
     public void testAddPositionKeyframeSpectator() {
         assertNull(timeline.peekUndoStack());
-        impl.addPositionKeyframe(0, 1, 2, 3, 4, 5, 6, 7);
+        impl.addPositionKeyframe(0, 1, 2, 3, 4, 5, 6, 60,7);
         assertNotNull(timeline.peekUndoStack());
         Keyframe keyframe = impl.getKeyframe(SPPath.POSITION, 0);
         assertNotNull(keyframe);
@@ -136,22 +136,22 @@ public class SPTimelineTest {
         impl.addTimeKeyframe(0, 0);
         impl.addTimeKeyframe(9, 9);
 
-        impl.addPositionKeyframe(4, 1, 2, 3, 4, 5, 6, 1);
+        impl.addPositionKeyframe(4, 1, 2, 3, 4, 5, 6, 60,1);
         keyframe = impl.getKeyframe(SPPath.POSITION, 4);
         assertEquals(keyframe.getValue(CameraProperties.POSITION), Optional.of(Triple.of(1d, 2d, 3d)));
         assertEquals(keyframe.getValue(CameraProperties.ROTATION), Optional.of(Triple.of(4f, 5f, 6f)));
 
-        impl.addPositionKeyframe(6, 1, 2, 3, 4, 5, 6, 42);
+        impl.addPositionKeyframe(6, 1, 2, 3, 4, 5, 6,60, 42);
         keyframe = impl.getKeyframe(SPPath.POSITION, 6);
         assertEquals(keyframe.getValue(CameraProperties.POSITION), Optional.of(Triple.of(12d, 0d, 0d)));
         assertEquals(keyframe.getValue(CameraProperties.ROTATION), Optional.of(Triple.of(0f, 0f, 0f)));
 
-        impl.addPositionKeyframe(8, 1, 2, 3, 4, 5, 6, 42);
+        impl.addPositionKeyframe(8, 1, 2, 3, 4, 5, 6,60, 42);
         keyframe = impl.getKeyframe(SPPath.POSITION, 8);
         assertEquals(keyframe.getValue(CameraProperties.POSITION), Optional.of(Triple.of(16d, 0d, 0d)));
         assertEquals(keyframe.getValue(CameraProperties.ROTATION), Optional.of(Triple.of(0f, 0f, 0f)));
 
-        impl.addPositionKeyframe(10, 1, 2, 3, 4, 5, 6, 42);
+        impl.addPositionKeyframe(10, 1, 2, 3, 4, 5, 6,60,42);
         keyframe = impl.getKeyframe(SPPath.POSITION, 10);
         assertEquals(keyframe.getValue(CameraProperties.POSITION), Optional.of(Triple.of(1d, 2d, 3d)));
         assertEquals(keyframe.getValue(CameraProperties.ROTATION), Optional.of(Triple.of(4f, 5f, 6f)));
@@ -159,14 +159,14 @@ public class SPTimelineTest {
 
     @Test(expected = IllegalStateException.class)
     public void testAddPositionKeyframeDuplicate() {
-        impl.addPositionKeyframe(0, 1, 2, 3, 4, 5, 6, -1);
-        impl.addPositionKeyframe(0, 1, 2, 3, 4, 5, 6, -1);
+        impl.addPositionKeyframe(0, 1, 2, 3, 4, 5, 6, 60,-1);
+        impl.addPositionKeyframe(0, 1, 2, 3, 4, 5, 6, 60,-1);
     }
 
     @Test
     public void testUpdatePositionKeyframe() {
-        impl.addPositionKeyframe(0, 1, 2, 3, 4, 5, 6, -1);
-        Change change = impl.updatePositionKeyframe(0, 7, 8, 9, 10, 11, 12);
+        impl.addPositionKeyframe(0, 1, 2, 3, 4, 5, 6, 60,-1);
+        Change change = impl.updatePositionKeyframe(0, 7, 8, 9, 10, 11, 12, 1);
         assertNotNull(change);
         Keyframe keyframe = impl.getKeyframe(SPPath.POSITION, 0);
         assertEquals(keyframe.getValue(CameraProperties.POSITION), Optional.of(Triple.of(7d, 8d, 9d)));
@@ -181,18 +181,18 @@ public class SPTimelineTest {
 
     @Test(expected = IllegalStateException.class)
     public void testUpdatePositionKeyframeNoKeyframe() {
-        impl.updatePositionKeyframe(0, 1, 2, 3, 4, 5, 6);
+        impl.updatePositionKeyframe(0, 1, 2, 3, 4, 5, 6, 1);
     }
 
     @Test(expected = IllegalStateException.class)
     public void testUpdatePositionKeyframeSpectatorKeyframe() {
-        impl.addPositionKeyframe(0, 1, 2, 3, 4, 5, 6, 7);
-        impl.updatePositionKeyframe(0, 1, 2, 3, 4, 5, 6);
+        impl.addPositionKeyframe(0, 1, 2, 3, 4, 5, 6, 60, 7);
+        impl.updatePositionKeyframe(0, 1, 2, 3, 4, 5, 6, 1);
     }
 
     @Test
     public void testRemovePositionKeyframe() {
-        impl.addPositionKeyframe(0, 1, 2, 3, 4, 5, 6, -1);
+        impl.addPositionKeyframe(0, 1, 2, 3, 4, 5, 6, 60, -1);
         impl.removePositionKeyframe(0);
         assertNull(impl.getKeyframe(SPPath.POSITION, 0));
     }
@@ -564,13 +564,13 @@ public class SPTimelineTest {
     }
 
     private void addPosition(int time, int expectedNumberOfInterpolators) {
-        impl.addPositionKeyframe(time, 1, 2, 3, 4, 5, 6, -1);
+        impl.addPositionKeyframe(time, 1, 2, 3, 4, 5, 6, 60,-1);
         assertNotNull(impl.getKeyframe(SPPath.POSITION, time));
         assertValidInterpolators(SPPath.POSITION, expectedNumberOfInterpolators);
     }
 
     private void addSpectator(int time, int expectedNumberOfInterpolators) {
-        impl.addPositionKeyframe(time, 1, 2, 3, 4, 5, 6, 42);
+        impl.addPositionKeyframe(time, 1, 2, 3, 4, 5, 6, 60,42);
         assertNotNull(impl.getKeyframe(SPPath.POSITION, time));
         assertTrue(impl.isSpectatorKeyframe(time));
         assertValidInterpolators(SPPath.POSITION, expectedNumberOfInterpolators);

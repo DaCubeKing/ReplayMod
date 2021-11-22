@@ -7,6 +7,7 @@ import com.replaymod.core.events.KeyBindingEventCallback;
 import com.replaymod.core.events.PreRenderCallback;
 import com.replaymod.core.events.PreRenderHandCallback;
 import com.replaymod.core.events.SettingsChangedCallback;
+import com.replaymod.core.versions.MCVer;
 import com.replaymod.replay.ReplayHandler;
 import com.replaymod.replay.events.RenderHotbarCallback;
 import com.replaymod.replay.events.RenderSpectatorCrosshairCallback;
@@ -225,6 +226,15 @@ public class CameraEntity
     public void setCameraPosRot(Location pos) {
         setCameraRotation(pos.getYaw(), pos.getPitch(), roll);
         setCameraPosition(pos.getX(), pos.getY(), pos.getZ());
+    }
+
+    /**
+     * Sets the camera fov to the specified fov
+     * @param fov The fov to set
+     */
+    public void setFov(Float fov) {
+        getMinecraft().options.fov = fov;
+        getMinecraft().worldRenderer.scheduleTerrainUpdate();
     }
 
     /**

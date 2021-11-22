@@ -8,6 +8,7 @@ import com.google.common.util.concurrent.SettableFuture;
 import com.replaymod.core.ReplayMod;
 import com.replaymod.core.utils.Result;
 import com.replaymod.core.utils.Utils;
+import com.replaymod.core.versions.MCVer;
 import com.replaymod.pathing.gui.GuiKeyframeRepository;
 import com.replaymod.pathing.player.RealtimeTimelinePlayer;
 import com.replaymod.pathing.properties.CameraProperties;
@@ -663,7 +664,7 @@ public class GuiPathing {
                         spectatedId = replayHandler.getOverlay().getMinecraft().getCameraEntity().getEntityId();
                     }
                     timeline.addPositionKeyframe(time, camera.getX(), camera.getY(), camera.getZ(),
-                            camera.yaw, camera.pitch, camera.roll, spectatedId);
+                            camera.yaw, camera.pitch, camera.roll, (float) getMinecraft().options.fov, spectatedId );
                     mod.setSelected(path, time);
                 }
                 break;

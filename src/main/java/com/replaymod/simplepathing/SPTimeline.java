@@ -6,6 +6,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
+import com.replaymod.core.versions.MCVer;
 import com.replaymod.pathing.properties.CameraProperties;
 import com.replaymod.pathing.properties.SpectatorProperty;
 import com.replaymod.pathing.properties.TimestampProperty;
@@ -157,9 +158,9 @@ public class SPTimeline implements PathingRegistry {
     }
 
     public void addPositionKeyframe(long time, double posX, double posY, double posZ,
-                                    float yaw, float pitch, float roll, int spectated) {
-        LOGGER.debug("Adding position keyframe at {} pos {}/{}/{} rot {}/{}/{} entId {}",
-                time, posX, posY, posZ, yaw, pitch, roll, spectated);
+                                    float yaw, float pitch, float roll, float fov, int spectated) {
+        LOGGER.debug("Adding position keyframe at {} pos {}/{}/{} rot {}/{}/{} fov {} entId {}",
+                time, posX, posY, posZ, yaw, pitch, roll, fov, spectated);
 
         Path path = positionPath;
 
@@ -172,6 +173,7 @@ public class SPTimeline implements PathingRegistry {
         UpdateKeyframeProperties.Builder builder = UpdateKeyframeProperties.create(path, keyframe);
         builder.setValue(CameraProperties.POSITION, Triple.of(posX, posY, posZ));
         builder.setValue(CameraProperties.ROTATION, Triple.of(yaw, pitch, roll));
+        builder.setValue(CameraProperties.FOV, Triple.of((float) (1/Math.tan(Math.toRadians(fov))), 0f, 0f));
         if (spectated != -1) {
             builder.setValue(SpectatorProperty.PROPERTY, spectated);
         }
@@ -201,9 +203,9 @@ public class SPTimeline implements PathingRegistry {
     }
 
     public Change updatePositionKeyframe(long time, double posX, double posY, double posZ,
-                                    float yaw, float pitch, float roll) {
-        LOGGER.debug("Updating position keyframe at {} to pos {}/{}/{} rot {}/{}/{}",
-                time, posX, posY, posZ, yaw, pitch, roll);
+                                    float yaw, float pitch, float roll, float fov) {
+        LOGGER.debug("Updating position keyframe at {} to pos {}/{}/{} rot {}/{}/{} fov {}",
+                time, posX, posY, posZ, yaw, pitch, roll, fov);
 
         Keyframe keyframe = positionPath.getKeyframe(time);
 
@@ -213,6 +215,7 @@ public class SPTimeline implements PathingRegistry {
         Change change = UpdateKeyframeProperties.create(positionPath, keyframe)
                 .setValue(CameraProperties.POSITION, Triple.of(posX, posY, posZ))
                 .setValue(CameraProperties.ROTATION, Triple.of(yaw, pitch, roll))
+                .setValue(CameraProperties.FOV, Triple.of(fov, fov, fov) )
                 .done();
         change.apply(timeline);
         return change;
@@ -554,7 +557,8 @@ public class SPTimeline implements PathingRegistry {
                 if (!expected.equals(actual)) {
                     changes.add(UpdateKeyframeProperties.create(positionPath, keyframe)
                             .setValue(CameraProperties.POSITION, Triple.of(expected.getX(), expected.getY(), expected.getZ()))
-                            .setValue(CameraProperties.ROTATION, Triple.of(expected.getYaw(), expected.getPitch(), 0f)).done()
+                            .setValue(CameraProperties.ROTATION, Triple.of(expected.getYaw(), expected.getPitch(), 0f))
+                            .setValue(CameraProperties.FOV, Triple.of((float) Math.tan(Math.toRadians(MCVer.getMinecraft().options.fov)), 0f, 0f)).done()
                     );
                 }
             }
@@ -569,6 +573,7 @@ public class SPTimeline implements PathingRegistry {
     private Interpolator registerPositionInterpolatorProperties(Interpolator interpolator) {
         interpolator.registerProperty(CameraProperties.POSITION);
         interpolator.registerProperty(CameraProperties.ROTATION);
+        interpolator.registerProperty(CameraProperties.FOV);
         return interpolator;
     }
 
@@ -590,8 +595,10 @@ public class SPTimeline implements PathingRegistry {
         timeline.registerProperty(TimestampProperty.PROPERTY);
         timeline.registerProperty(CameraProperties.POSITION);
         timeline.registerProperty(CameraProperties.ROTATION);
+        timeline.registerProperty(CameraProperties.FOV);
         timeline.registerProperty(SpectatorProperty.PROPERTY);
         timeline.registerProperty(ExplicitInterpolationProperty.PROPERTY);
+        timeline.registerProperty(CameraProperties.FOV);
 
         return timeline;
     }

@@ -25,6 +25,7 @@ public class CameraProperties extends AbstractPropertyGroup {
     public static final CameraProperties GROUP = new CameraProperties();
     public static final Position POSITION = new Position();
     public static final Rotation ROTATION = new Rotation();
+    public static final Fov FOV = new Fov();
     private CameraProperties() {
         super("camera", "replaymod.gui.camera");
     }
@@ -97,6 +98,54 @@ public class CameraProperties extends AbstractPropertyGroup {
             CameraEntity cameraEntity = handler.getCameraEntity();
             if (cameraEntity != null) {
                 cameraEntity.setCameraRotation(value.getLeft(), value.getMiddle(), value.getRight());
+            }
+        }
+
+        @Override
+        public void toJson(JsonWriter writer, Triple<Float, Float, Float> value) throws IOException {
+            writer.beginArray().value(value.getLeft()).value(value.getMiddle()).value(value.getRight()).endArray();
+        }
+
+        @Override
+        public Triple<Float, Float, Float> fromJson(JsonReader reader) throws IOException {
+            reader.beginArray();
+            try {
+                return Triple.of((float) reader.nextDouble(), (float) reader.nextDouble(), (float) reader.nextDouble());
+            } finally {
+                reader.endArray();
+            }
+        }
+    }
+
+
+    public static class Fov extends AbstractProperty<Triple<Float, Float, Float>> {
+        public final PropertyPart<Triple<Float, Float, Float>>
+                FOV = new PropertyParts.ForFloatTriple(this, true,  PropertyParts.TripleElement.LEFT),
+                A = new PropertyParts.ForFloatTriple(this, true,  PropertyParts.TripleElement.MIDDLE),
+                B = new PropertyParts.ForFloatTriple(this, true,  PropertyParts.TripleElement.RIGHT);
+
+        private Fov() {
+            super("fov", "replaymod.gui.fov", GROUP, Triple.of(0f, 0f, 0f));
+        }
+
+        @Override
+        public Collection<PropertyPart<Triple<Float, Float, Float>>> getParts() {
+            return Arrays.asList(FOV, A, B);
+        }
+
+        @Override
+        public void applyToGame(Triple<Float, Float, Float> value, @NonNull Object replayHandler) {
+            ReplayHandler handler = ((ReplayHandler) replayHandler);
+            handler.spectateCamera();
+            CameraEntity cameraEntity = handler.getCameraEntity();
+            if (cameraEntity != null) {
+                double fov;
+                if(value.getLeft()<0){
+                    fov = Math.toDegrees(Math.atan(1/value.getLeft())+Math.PI);
+                } else {
+                    fov = Math.toDegrees(Math.atan(1/value.getLeft()));
+                }
+                cameraEntity.setFov((float) fov);
             }
         }
 
